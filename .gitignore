@@ -1,0 +1,43 @@
+# Compiled Python files
+*.pyc
+
+# Folder view configuration files
+.DS_Store
+Desktop.ini
+
+# Thumbnail cache files
+._*
+Thumbs.db
+
+# Files that might appear on external disks
+.Spotlight-V100
+.Trashes
+
+.vim
+
+link/.emacs.d/.cask
+link/.emacs.d/abbrev_defs
+link/.emacs.d/auto-save-list
+link/.emacs.d/docsets
+link/.emacs.d/elpa
+link/.emacs.d/projectile-bookmarks.eld
+link/.emacs.d/undo-tree-history
+link/.emacs.d/projectile.cache
+link/.emacs.d/url
+link/.emacs.d/\.mc-lists.el
+link/.emacs.d/ac-comphist*
+link/.emacs.d/network-security*
+link/.emacs.d/eshell/
+link/.emacs.d/recentf
+link/.emacs.d/themes/
+link/.emacs.d/transient/
+link/.emacs.d/cider-history
+fonts-master/
+
+htop
+.tmux
+GPATH
+GTAGS
+GRTAGS
+
+link/.emacs.d/smex-items
