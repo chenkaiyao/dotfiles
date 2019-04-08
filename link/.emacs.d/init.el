@@ -54,10 +54,14 @@
 (require 'init-plantform)
 (require 'init-pkgs)
 (require 'init-evil)
-;;(require 'init-evil-eshell)
 (require 'init-org)
 (require 'init-languages)
 (require 'init-maps)
+
+;; start the emacsserver that listens to emacsclient
+(server-start)
+
+;;; essential libs
 
 (provide 'init)
 (custom-set-variables
@@ -76,7 +80,7 @@
  '(cider-show-error-buffer nil)
  '(custom-safe-themes
    (quote
-    ("f153e8ed90e4d79cf2c61560da2b3091d2f3b94da42aaddc707012be4608cf52" "291588d57d863d0394a0d207647d9f24d1a8083bb0c9e8808280b46996f3eb83" "b9cbfb43711effa2e0a7fbc99d5e7522d8d8c1c151a3194a4b176ec17c9a8215" "30f7c9e85d7fad93cf4b5a97c319f612754374f134f8202d1c74b0c58404b8df" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "12ae26f3493216be1bc0bbd28732671e8672bc3c631f1cea042a1040b136058a" "a4c9e536d86666d4494ef7f43c84807162d9bd29b0dfd39bdf2c3d845dcc7b2e" "3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
+    ("d3e333eaa461c82a124f7e7a7a9637d56fc3019478becb1847952804ca67743e" "f153e8ed90e4d79cf2c61560da2b3091d2f3b94da42aaddc707012be4608cf52" "291588d57d863d0394a0d207647d9f24d1a8083bb0c9e8808280b46996f3eb83" "b9cbfb43711effa2e0a7fbc99d5e7522d8d8c1c151a3194a4b176ec17c9a8215" "30f7c9e85d7fad93cf4b5a97c319f612754374f134f8202d1c74b0c58404b8df" "98cc377af705c0f2133bb6d340bf0becd08944a588804ee655809da5d8140de6" "12ae26f3493216be1bc0bbd28732671e8672bc3c631f1cea042a1040b136058a" "a4c9e536d86666d4494ef7f43c84807162d9bd29b0dfd39bdf2c3d845dcc7b2e" "3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default)))
  '(doom-themes-enable-bold t)
  '(doom-themes-enable-italic t)
  '(package-selected-packages

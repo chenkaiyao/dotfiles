@@ -192,9 +192,6 @@ alias testdb="ssh -i ~/.ssh/id_rsa -o ServerAliveInterval=10 root@testdb"
 # for emacs ggtags
 export GTAGSCONF=/usr/local/share/gtags/gtags.conf
 export GTAGSLABEL=ctags
-# alias emacs="~/githubs/dotfiles/emacs_client.sh -t"
-# alias em="emacs"
-# alias emd="emacs -e '(kill-emacs)'"
 
 # for dockers
 alias drmai='docker rmi $(docker images -a)'
@@ -209,4 +206,9 @@ alias vi="/usr/local/Cellar/vim/8.1.1100/bin/vim"
 alias get_esp32="export PATH=$PATH:$HOME/esp/xtensa-esp32-elf/bin"
 
 alias gsed="/usr/bin/sed"
+
+# for emacs quick start
+alias ed='emacs --daemon'
+alias ec='emacsclient -c '
+alias et='emacsclient -t '
 

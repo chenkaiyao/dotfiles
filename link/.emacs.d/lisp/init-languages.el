@@ -124,28 +124,28 @@
 ;; go get -u github.com/golang/lint/golint
 ;; go get -u github.com/nsf/gocode
 ;;----------------------------------------------------------------------------
-;; (use-package company-go
-;;              :ensure t
-;;              :defer t
-;;              :init
-;;              (with-eval-after-load 'company
-;;                                    (add-to-list 'company-backends 'company-go)))
+(use-package company-go
+             :ensure t
+             :defer t
+             :init
+             (with-eval-after-load 'company
+                                   (add-to-list 'company-backends 'company-go)))
 
-;; (use-package go-eldoc
-;;              :ensure t
-;;              :defer
-;;              :init
-;;              (add-hook 'go-mode-hook 'go-eldoc-setup))
+(use-package go-eldoc
+             :ensure t
+             :defer
+             :init
+             (add-hook 'go-mode-hook 'go-eldoc-setup))
 
-;; (use-package go-mode
-;;  :config
-;;  (bind-keys :map go-mode-map
-;;   ("C-," . godef-jump)
-;;   ("C-;" . pop-tag-mark)
-;;   )
-;;  (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
-;;  (setq gofmt-command "goimports")
-;;  (add-hook 'before-save-hook 'gofmt-before-save))
+(use-package go-mode
+ :config
+ (bind-keys :map go-mode-map
+  ("C-," . godef-jump)
+  ("C-;" . pop-tag-mark)
+  )
+ (add-hook 'go-mode-hook '(lambda () (setq tab-width 2)))
+ (setq gofmt-command "goimports")
+ (add-hook 'before-save-hook 'gofmt-before-save))
 
 ;;----------------------------------------------------------------------------
 ;; clojure
