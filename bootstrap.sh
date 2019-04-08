@@ -3,7 +3,7 @@
 cd "$(dirname "${BASH_SOURCE}")";
 
 function doIt() {
-	rsync -avh --no-perms ./move ~;
+	rsync -avh --no-perms ./move/ ~;
 	source ~/.bash_profile;
 }
 
