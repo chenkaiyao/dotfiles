@@ -123,6 +123,9 @@
   (interactive)
   (string-equal system-type "gnu/linux"))
 
+(defun x/system-is-mac ()
+  (eq system-type 'darwin))
+
 (defun hold-line-scroll-up ()
   "Scroll the page with the cursor in the same line"
   (interactive)
@@ -332,6 +335,71 @@ directory to make multiple eshell windows easier."
   (declare (debug t) (indent 0))
   `(cl-letf (((symbol-function 'warn) #'ignore))
      ,@body))
+
+;; Recompile elpa. This will solve the Evaluation of this sh code block is disabled issue.
+(defun x/recompile-elpa ()
+  "Recompile packages in elpa directory. Useful if you switch
+Emacs versions."
+  (interactive)
+  (byte-recompile-directory package-user-dir nil t))
+
+(defun cleanup-and-save-buffer()
+  "Save the buffer and cleanup whitespace."
+  (interactive)
+  (progn
+    (whitespace-cleanup)
+    (save-buffer)))
+
+(defun x/delete-current-buffer-file ()
+  "Removes file connected to current buffer and kills buffer."
+  (interactive)
+  (let ((filename (buffer-file-name))
+        (buffer (current-buffer))
+        (name (buffer-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (ido-kill-buffer)
+      (when (yes-or-no-p "Are you sure you want to delete this file? ")
+        (delete-file filename t)
+        (kill-buffer buffer)
+        (x/drop-project-cache)
+        (message "File '%s' successfully removed" filename)))))
+
+(defun x/drop-project-cache ()
+  "invalidate projectile cache if it is currently active"
+  (when (and (featurep 'projectile)
+             (projectile-project-p))
+    (call-interactively #'projectile-invalidate-cache)))
+
+(defun magit-blame-toggle ()
+    "Toggle magit-blame-mode on and off interactively."
+    (interactive)
+    (if (and (boundp 'magit-blame-mode) magit-blame-mode)
+      (magit-blame-quit)
+      (call-interactively 'magit-blame)))
+
+
+(defun air--apply-evil-other-package-configs ()
+  "Apply evil-dependent settings specific to other packages."
+
+  (defun next-conflict-marker ()
+    (interactive)
+    (evil-next-visual-line)
+    (if (not (search-forward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-max) t))
+      (evil-previous-visual-line))
+    (move-beginning-of-line nil))
+
+  (defun previous-conflict-marker ()
+    (interactive)
+    (search-backward-regexp "\\(>>>>\\|====\\|<<<<\\)" (point-min) t)
+    (move-beginning-of-line nil))
+
+  (evil-define-key 'normal prog-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'normal prog-mode-map (kbd "[n") 'previous-conflict-marker)
+  (evil-define-key 'visual prog-mode-map (kbd "]n") 'next-conflict-marker)
+  (evil-define-key 'visual prog-mode-map (kbd "[n") 'previous-conflict-marker)
+  )
+
+
 
 (provide 'init-utils)
 ;;; init-utils.el ends here

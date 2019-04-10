@@ -32,6 +32,8 @@ link/.emacs.d/recentf
 link/.emacs.d/themes/
 link/.emacs.d/transient/
 link/.emacs.d/cider-history
+link/.emacs.d/tramp
+link/.emacs.d/smex-items
 fonts-master/
 
 htop
@@ -40,4 +42,4 @@ GPATH
 GTAGS
 GRTAGS
 
-link/.emacs.d/smex-items
+

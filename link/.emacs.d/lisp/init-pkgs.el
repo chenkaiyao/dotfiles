@@ -6,10 +6,12 @@
 (use-package diminish
              :ensure t)
 (use-package exec-path-from-shell
-             :ensure t
+             :if (x/system-is-mac)
+             :init
+             (setq exec-path-from-shell-check-startup-files nil)
              :config
-             (exec-path-from-shell-initialize)
-             (exec-path-from-shell-copy-env "GOPATH"))
+             (when (memq window-system '(mac ns))
+               (exec-path-from-shell-initialize)))
 (use-package which-key
              :ensure t
              :diminish which-key-mode
@@ -22,10 +24,7 @@
 (use-package helm-descbinds
              :ensure t
              :init (helm-descbinds-mode))
-(use-package json-reformat
-             :ensure t
-             :defer t
-             :bind (("C-x i" . json-reformat-region)))
+(use-package json-reformat :ensure t :defer t)
 (use-package rainbow-mode
              :ensure t
              :defer t
@@ -35,14 +34,15 @@
              :ensure t
              :init
              (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+(use-package hydra
+             :ensure t
+             :config
+             (setq hydra-verbose nil))
 (use-package comment-dwim-2 :ensure t)
 (use-package helm
              :ensure t
              :diminish helm-mode
              :defer t
-             :bind
-             ("C-x C-f" . helm-find-files)
-             ("C-x b" . helm-mini)
              :commands helm-mode
              :init (progn
                      ;; for os-x add the line
@@ -60,10 +60,8 @@
                          helm-google-suggest-use-curl-p t
                          )
                        (helm-autoresize-mode 1)
-                       (define-key helm-map (kbd "C-b") 'helm-keyboard-quit)
-                       (define-key helm-map (kbd "C-p") 'helm-keyboard-quit)
-                       (define-key helm-map (kbd "C-j") 'helm-next-line)
-                       (define-key helm-map (kbd "C-k") 'helm-previous-line)
+                       ;;(define-key helm-map (kbd "C-j") 'helm-next-line)
+                       ;;(define-key helm-map (kbd "C-k") 'helm-previous-line)
                        ))
 (use-package highlight-symbol
              :defer t
@@ -127,46 +125,62 @@
                       try-expand-dabbrev-from-kill))
              :bind
              ("M-/" . hippie-expand))
+;; (use-package magit
+;;              :ensure t
+;;              :defer t
+;;              :init
+;;              (setq magit-popup-show-common-commands nil)
+;;              (setq magit-log-arguments '("--graph"
+;;                                          "--decorate"
+;;                                          "--color"))
+;;              :config
+;;              (progn
+;;                (defadvice magit-status (around magit-fullscreen activate)
+;;                           (window-configuration-to-register :magit-fullscreen)
+;;                           ad-do-it
+;;                           (delete-other-windows))
+
+;;                (defun magit-quit-session ()
+;;                  "Restores the previous window configuration and kills the magit buffer"
+;;                  (interactive)
+;;                  (kill-buffer)
+;;                  (jump-to-register :magit-fullscreen))
+
+;;                (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+
+;;              ;; removes 1.4.0 warning in arguably cleaner way
+;;              (remove-hook 'after-init-hook 'magit-maybe-show-setup-instructions)
+;;              (defadvice magit-blame-mode (after switch-to-emacs-state activate)
+;;                         (if magit-blame-mode
+;;                           (evil-emacs-state 1)
+;;                           (evil-normal-state 1))))
 (use-package magit
-             :ensure t
-             :defer t
-             :bind (("M-g s" . magit-status)
-                    ("M-g l" . magit-log)
-                    ("M-g f" . magit-pull)
-                    ("M-g p" . magit-push)
-                    ("M-g x" . magit-reset-hard))
-             :init
-             (setq magit-popup-show-common-commands nil)
-             (setq magit-log-arguments '("--graph"
-                                         "--decorate"
-                                         "--color"))
-             :config
-             (progn
-               (defadvice magit-status (around magit-fullscreen activate)
-                          (window-configuration-to-register :magit-fullscreen)
-                          ad-do-it
-                          (delete-other-windows))
+  :ensure t
+  :defer t
+  :init
+  (use-package evil-magit :ensure t)
+  :config
+  (progn
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
 
-               (defun magit-quit-session ()
-                 "Restores the previous window configuration and kills the magit buffer"
-                 (interactive)
-                 (kill-buffer)
-                 (jump-to-register :magit-fullscreen))
+    (defun magit-quit-session ()
+      "Restores the previous window configuration and kills the magit buffer"
+      (interactive)
+      (kill-buffer)
+      (jump-to-register :magit-fullscreen))
 
-               (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+    (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+  )
 
-             ;; removes 1.4.0 warning in arguably cleaner way
-             (remove-hook 'after-init-hook 'magit-maybe-show-setup-instructions)
-             (defadvice magit-blame-mode (after switch-to-emacs-state activate)
-                        (if magit-blame-mode
-                          (evil-emacs-state 1)
-                          (evil-normal-state 1))))
 (use-package git-gutter
-             :ensure t
-             :diminish git-gutter+-mode
-             :defer t
-             :init
-             (global-git-gutter-mode t)
+	     :ensure t
+	     :diminish git-gutter+-mode
+	     :defer t
+	     :init
+	     (global-git-gutter-mode t)
              :config
              (progn
                (setq git-gutter:window-width 2)
@@ -177,13 +191,40 @@
                (set-face-foreground 'git-gutter:deleted "#FA8072")
                (set-face-foreground 'git-gutter:modified "#b18cce")
                ))
+;; (use-package projectile
+;;              :defer t
+;;              :ensure t
+;;              :diminish projectile-mode
+;;              :config
+;;              (projectile-global-mode)
+;;              (setq projectile-enable-caching t))
 (use-package projectile
-             :defer t
-             :ensure t
-             :diminish projectile-mode
-             :config
-             (projectile-global-mode)
-             (setq projectile-enable-caching t))
+  :commands (projectile-ack
+             projectile-ag
+             projectile-compile-project
+             projectile-dired
+             projectile-find-dir
+             projectile-find-file
+             projectile-find-tag
+             projectile-test-project
+             projectile-grep
+             projectile-invalidate-cache
+             projectile-kill-buffers
+             projectile-multi-occur
+             projectile-project-p
+             projectile-project-root
+             projectile-recentf
+             projectile-regenerate-tags
+             projectile-replace
+             projectile-replace-regexp
+             projectile-run-async-shell-command-in-root
+             projectile-run-shell-command-in-root
+             projectile-switch-project
+             projectile-switch-to-buffer
+             projectile-vc)
+  :ensure ag
+  :config
+  (projectile-global-mode))
 (use-package helm-projectile
              :defer t
              :commands (helm-projectile helm-projectile-switch-project)
@@ -198,8 +239,9 @@
              (setq company-idle-delay 0.2)
              (setq company-selection-wrap-around t)
              (define-key company-active-map [tab] 'company-complete)
-             (define-key company-active-map (kbd "C-n") 'company-select-next)
-             (define-key company-active-map (kbd "C-p") 'company-select-previous))
+             ;(define-key company-active-map (kbd "C-n") 'company-select-next)
+             ;(define-key company-active-map (kbd "C-p") 'company-select-previous)
+             )
 (use-package paredit
              :ensure t
              :diminish paredit-mode
@@ -207,85 +249,109 @@
              (add-hook 'erlang-mode-hook 'paredit-mode)
              (add-hook 'go-mode-hook 'paredit-mode)
              (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
+(use-package swiper :ensure t :bind (("C-s" . swiper)))
 
-(use-package swiper
+(use-package key-chord
   :ensure t
-  :bind (("C-s" . swiper)))
+  :config
+  (progn
+    (key-chord-define-global "jb" 'ibuffer)
+    (key-chord-define-global "j0" 'delete-window)
+    (key-chord-define-global "j1" 'delete-other-windows)
+    (key-chord-define-global "jz" 'magit-dispatch-popup)
+    (key-chord-define-global "kb" 'gh/kill-current-buffer)
+    (key-chord-mode 1)))
 
-;;jj. It makes evil mode being turned off much more palatable.
-(use-package use-package-chords
-             :ensure t
-             :config
-             (key-chord-mode 1))
-(use-package google-this :ensure t)
 (use-package logview :ensure t)
 (use-package hydra :ensure t)
-(use-package ace-window
-             :functions hydra-frame-window/body
-             :bind
-             ("C-M-o" . hydra-frame-window/body)
-             :custom
-             (aw-keys '(?j ?k ?l ?i ?o ?h ?y ?u ?p))
-             :custom-face
-             (aw-leading-char-face ((t (:height 4.0 :foreground "#f1fa8c")))))
-;; reffer to http://jwintz.me/blog/2014/02/16/helm-dash-makes-you-efficient/
-;(use-package helm-dash
-;             :ensure t
-;             :defines (helm-dash-docsets)
-;             :functions (esk-helm-dash-install
-;                          helm-dash-web
-;                          helm-dash-go
-;                          helm-dash-installed-docsets)
-;             :commands (helm-dash-at-point esk-helm-dash-install)
-;             :preface
-;             (progn
-;               (defvar esk-dash-docsets
-;                 ;'("Bash" "C" "C++" "Go" "Redis" "Ansible" "UnderscoreJS" "JavaScript" "React"))
-;                 '("Bash" "Go" "Clojure"))
-;
-;               (defun esk-helm-dash-install (docset-name)
-;                 (message (format "Installing helm-dash docset '%s'" docset-name))
-;                 (unless (file-exists-p (concat (concat helm-dash-docsets-path docset-name) ".docset"))
-;                   (helm-dash-install-docset docset-name)))
-;
-;               (defun esk-dash-limit (docsets-names)
-;                 (set (make-local-variable 'helm-dash-docsets) docsets-names))
-;
-;               (defun helm-dash-bash () (esk-dash-limit '("Bash")))
-;               (defun helm-dash-go () (esk-dash-limit '("Go" "Redis")))
-;               (defun helm-dash-clojure () (esk-dash-limit '("Clojure")))
-;               (defun helm-dash-yaml () (esk-dash-limit '("Ansible")))
-;               (defun helm-dash-c () (esk-dash-limit '("c")))
-;               (defun helm-dash-web () (esk-dash-limit '("UnderscoreJS" "JavaScript" "React")))
-;
-;               :init
-;               (progn
-;                 (setq helm-dash-docsets-path "~/.emacs.d/docsets/")
-;                 (after sh-script (add-hook 'sh-mode-hook 'helm-dash-bash))
-;                 (after go-mode (add-hook 'go-mode-hook 'helm-dash-go))
-;                 (after clojure-mode (add-hook 'clojure-mode-hook 'helm-dash-clojure))
-;                 ;(after yaml-mode (add-hook 'yaml-mode-hook 'helm-dash-yaml))
-;                 ;(after c-mode (add-hook 'c-mode-hook 'helm-dash-c))
-;                 ;(after web-mode (add-hook 'web-mode-hook 'helm-dash-web))
-;                 )
-;               :config
-;               (progn
-;                 (defun eww-split (url)
-;                   (interactive)
-;                   (select-window (split-window-right))
-;                   (eww url))
-;                 (setq helm-dash-browser-func 'eww-split)
-;                 ;(setq helm-dash-browser-func 'eww)
-;                 (add-hook 'prog-mode-hook
-;                           (lambda ()
-;                             (interactive)
-;                             (setq helm-current-buffer (current-buffer))))
-;                 (dolist (docset esk-dash-docsets)
-;                   (esk-helm-dash-install docset))
-;                 )))
+(use-package eshell
+             :ensure t
+             :config
+             (require 'f)
+             (setq eshell-visual-commands
+                   '("less" "tmux" "htop" "top" "bash" "zsh" "fish"))
 
+             (setq eshell-visual-subcommands
+                   '(("git" "log" "l" "diff" "show")))
+
+             ;; Prompt with a bit of help from http://www.emacswiki.org/emacs/EshellPrompt
+             (defmacro with-face (str &rest properties)
+               `(propertize ,str 'face (list ,@properties)))
+
+             (defun eshell/abbr-pwd ()
+               (let ((home (getenv "HOME"))
+                     (path (eshell/pwd)))
+                 (cond
+                   ((string-equal home path) "~")
+                   ((f-ancestor-of? home path) (concat "~/" (f-relative path home)))
+                   (path))))
+
+             (defun eshell/my-prompt ()
+               (let ((header-bg "#161616"))
+                 (concat
+                   (with-face user-login-name :foreground "#d75faf")
+                   " "
+                   (with-face (eshell/abbr-pwd) :foreground "#008700")
+                   (if (= (user-uid) 0)
+                     (with-face "#" :foreground "red")
+                     (with-face "$" :foreground "#2345ba"))
+                   " ")))
+             (setq eshell-prompt-function 'eshell/my-prompt)
+             (setq eshell-highlight-prompt nil)
+             (setq eshell-prompt-regexp "^[^#$\n]+[#$] ")
+             (setq eshell-cmpl-cycle-completions nil))
+
+;; TODO: robertzhouxh download the stuff from: https://github.com/Kapeli/feeds
+;; or install offical doc: helm-dash-install-docset
+;; or install user doc: helm-dash-install-user-docset
+;; 建议：命令行fq， 然后https://github.com/Kapeli/feeds 得到xml，
+;;      从xml里某个link下载需要的文档tar.gz 然后解压缩,
+(use-package helm-dash
+             :ensure t
+             :init
+             (setq helm-dash-docsets-path "~/.emacs.d/docsets/")
+             (global-set-key (kbd "C-c d") 'helm-dash-at-point)
+             (defun erlang-doc ()
+               (interactive)
+               (setq-local helm-dash-docsets '("Erlang" "MongoDB")))
+             (defun go-doc ()
+               (interactive)
+               (setq-local helm-dash-docsets '("Go" "MongoDB")))
+             (defun bash-doc ()
+               (interactive)
+               (setq-local helm-dash-docsets '("Bash")))
+             (defun c-doc ()
+               (interactive)
+               (setq-local helm-dash-docsets '("C")))
+             (defun c++-doc ()
+               (interactive)
+               (setq-local helm-dash-docsets '("C" "C++")))
+             (add-hook 'erlang-mode-hook 'erlang-doc)
+             (add-hook 'go-mode-hook 'go-doc)
+             (add-hook 'bash-mode-hook 'bash-doc)
+             (add-hook 'c-mode-hook 'c-doc)
+             (add-hook 'c++-mode-hook 'c++-doc)
+             :config
+             (progn
+               (defun eww-split (url)
+                 (interactive)
+                 (select-window (split-window-right))
+                 (eww url))
+               (setq helm-dash-browser-func 'eww-split)
+               ;(setq helm-dash-browser-func 'eww)
+               (add-hook 'prog-mode-hook
+                         (lambda ()
+                           (interactive)
+                           (setq helm-current-buffer (current-buffer))))
+               ))
+(use-package tramp
+             :ensure t
+             :defer t
+             :config
+             (setq tramp-default-method "ssh"
+                   tramp-auto-save-directory (expand-file-name "~/.emacs.d/auto-save-list")))
 ;; --------------------------------------------------------------------
-;; jump to definations 
+;; jump to definations
 ;; --------------------------------------------------------------------
 ;; scheme-1
 ;; (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
@@ -342,24 +408,41 @@
 
 
 ;;(autoload 'vc-git-root "vc-git")
-(defun gtags-reindex ()
-  "Kick off gtags reindexing."
-  (interactive)
-  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
-         (gtags-filename (expand-file-name "GTAGS" root-path)))
-    (if (file-exists-p gtags-filename)
-      (gtags-index-update root-path)
-      (gtags-index-initial root-path))))
+;;(defun gtags-reindex ()
+;;  "Kick off gtags reindexing."
+;;  (interactive)
+;;  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
+;;         (gtags-filename (expand-file-name "GTAGS" root-path)))
+;;    (if (file-exists-p gtags-filename)
+;;      (gtags-index-update root-path)
+;;      (gtags-index-initial root-path))))
+;;
+;;(defun gtags-index-initial (path)
+;;  "Generate initial GTAGS files for PATH."
+;;  (let ((bpr-process-directory path))
+;;    (bpr-spawn "gtags")))
+;;
+;;(defun gtags-index-update (path)
+;;  "Update GTAGS in PATH."
+;;  (let ((bpr-process-directory path))
+;;    (bpr-spawn "global -uv")))
 
-(defun gtags-index-initial (path)
-  "Generate initial GTAGS files for PATH."
-  (let ((bpr-process-directory path))
-    (bpr-spawn "gtags")))
-
-(defun gtags-index-update (path)
-  "Update GTAGS in PATH."
-  (let ((bpr-process-directory path))
-    (bpr-spawn "global -uv")))
+(if (executable-find "global")
+    (use-package helm-gtags
+      :defer t
+      :init
+      (add-hook 'c++-mode-hook 'helm-gtags-mode)
+      (add-hook 'c-mode-hook 'helm-gtags-mode)
+      (add-hook 'erlang-mode-hook 'helm-gtags-mode)
+      (add-hook 'go-mode-hook 'helm-gtags-mode)
+      :config
+      (diminish 'helm-gtags-mode (my:safe-lighter-icon "" "tags"))
+      ;;(global-unset-key "\C-t")
+      (custom-set-variables
+       '(helm-gtags-path-style 'relative)
+       '(helm-gtags-ignore-case t)
+       '(helm-gtags-auto-update t))
+  (fset 'helm-gtags-mode nil)))
 
 (use-package dumb-jump
              :ensure t
