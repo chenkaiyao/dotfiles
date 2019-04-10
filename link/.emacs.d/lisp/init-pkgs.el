@@ -125,55 +125,35 @@
                       try-expand-dabbrev-from-kill))
              :bind
              ("M-/" . hippie-expand))
-;; (use-package magit
-;;              :ensure t
-;;              :defer t
-;;              :init
-;;              (setq magit-popup-show-common-commands nil)
-;;              (setq magit-log-arguments '("--graph"
-;;                                          "--decorate"
-;;                                          "--color"))
-;;              :config
-;;              (progn
-;;                (defadvice magit-status (around magit-fullscreen activate)
-;;                           (window-configuration-to-register :magit-fullscreen)
-;;                           ad-do-it
-;;                           (delete-other-windows))
-
-;;                (defun magit-quit-session ()
-;;                  "Restores the previous window configuration and kills the magit buffer"
-;;                  (interactive)
-;;                  (kill-buffer)
-;;                  (jump-to-register :magit-fullscreen))
-
-;;                (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
-
-;;              ;; removes 1.4.0 warning in arguably cleaner way
-;;              (remove-hook 'after-init-hook 'magit-maybe-show-setup-instructions)
-;;              (defadvice magit-blame-mode (after switch-to-emacs-state activate)
-;;                         (if magit-blame-mode
-;;                           (evil-emacs-state 1)
-;;                           (evil-normal-state 1))))
 (use-package magit
-  :ensure t
-  :defer t
-  :init
-  (use-package evil-magit :ensure t)
-  :config
-  (progn
-    (defadvice magit-status (around magit-fullscreen activate)
-      (window-configuration-to-register :magit-fullscreen)
-      ad-do-it
-      (delete-other-windows))
+             :ensure t
+             :defer t
+             :init
+             (setq magit-popup-show-common-commands nil)
+             (setq magit-log-arguments '("--graph"
+                                         "--decorate"
+                                         "--color"))
+             :config
+             (progn
+               (defadvice magit-status (around magit-fullscreen activate)
+                          (window-configuration-to-register :magit-fullscreen)
+                          ad-do-it
+                          (delete-other-windows))
 
-    (defun magit-quit-session ()
-      "Restores the previous window configuration and kills the magit buffer"
-      (interactive)
-      (kill-buffer)
-      (jump-to-register :magit-fullscreen))
+               (defun magit-quit-session ()
+                 "Restores the previous window configuration and kills the magit buffer"
+                 (interactive)
+                 (kill-buffer)
+                 (jump-to-register :magit-fullscreen))
 
-    (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
-  )
+               (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+
+             ;; removes 1.4.0 warning in arguably cleaner way
+             (remove-hook 'after-init-hook 'magit-maybe-show-setup-instructions)
+             (defadvice magit-blame-mode (after switch-to-emacs-state activate)
+                        (if magit-blame-mode
+                          (evil-emacs-state 1)
+                          (evil-normal-state 1))))
 
 (use-package git-gutter
 	     :ensure t
@@ -396,53 +376,32 @@
 ;; scheme-2
 ;; /usr/local/Cellar/global/6.5.5/share/gtags/gtags.el
 ;; gtags --gtagslabel=pygments --debug
-;; (use-package gtags :ensure t)
-(require 'gtags)
+(use-package gtags :ensure t)
 (use-package bpr :ensure t)
-
 ;; Bind some useful keys in the gtags select buffer that evil overrides.
 (add-hook 'gtags-select-mode-hook
           (lambda ()
             (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
             (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
 
+(defun gtags-reindex ()
+  "Kick off gtags reindexing."
+  (interactive)
+  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
+         (gtags-filename (expand-file-name "GTAGS" root-path)))
+    (if (file-exists-p gtags-filename)
+        (gtags-index-update root-path)
+      (gtags-index-initial root-path))))
 
-;;(autoload 'vc-git-root "vc-git")
-;;(defun gtags-reindex ()
-;;  "Kick off gtags reindexing."
-;;  (interactive)
-;;  (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
-;;         (gtags-filename (expand-file-name "GTAGS" root-path)))
-;;    (if (file-exists-p gtags-filename)
-;;      (gtags-index-update root-path)
-;;      (gtags-index-initial root-path))))
-;;
-;;(defun gtags-index-initial (path)
-;;  "Generate initial GTAGS files for PATH."
-;;  (let ((bpr-process-directory path))
-;;    (bpr-spawn "gtags")))
-;;
-;;(defun gtags-index-update (path)
-;;  "Update GTAGS in PATH."
-;;  (let ((bpr-process-directory path))
-;;    (bpr-spawn "global -uv")))
+(defun gtags-index-initial (path)
+  "Generate initial GTAGS files for PATH."
+  (let ((bpr-process-directory path))
+    (bpr-spawn "gtags")))
 
-(if (executable-find "global")
-    (use-package helm-gtags
-      :defer t
-      :init
-      (add-hook 'c++-mode-hook 'helm-gtags-mode)
-      (add-hook 'c-mode-hook 'helm-gtags-mode)
-      (add-hook 'erlang-mode-hook 'helm-gtags-mode)
-      (add-hook 'go-mode-hook 'helm-gtags-mode)
-      :config
-      (diminish 'helm-gtags-mode (my:safe-lighter-icon "" "tags"))
-      ;;(global-unset-key "\C-t")
-      (custom-set-variables
-       '(helm-gtags-path-style 'relative)
-       '(helm-gtags-ignore-case t)
-       '(helm-gtags-auto-update t))
-  (fset 'helm-gtags-mode nil)))
+(defun gtags-index-update (path)
+  "Update GTAGS in PATH."
+  (let ((bpr-process-directory path))
+    (bpr-spawn "global -uv")))
 
 (use-package dumb-jump
              :ensure t
